@@ -1,0 +1,20 @@
+Table Users
+
+nome completo
+genero
+data de nascimento
+
+Table Address
+
+endereço
+cep
+Localidade/Cidade
+Estado
+Numero De Celular
+
+Table Account
+email
+password
+safe question
+
+Table Roles
