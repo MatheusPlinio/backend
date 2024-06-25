@@ -3,6 +3,8 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'src/prisma/prisma/prisma.service';
 
+const EXPIRE_TIME = 3 * 60 * 60 * 1000;
+
 @Injectable()
 export class AuthService {
 
@@ -18,13 +20,14 @@ export class AuthService {
 
         return {
             accessToken: await this.jwtService.signAsync(payload, {
-                expiresIn: '1h',
+                expiresIn: '2h',
                 secret: process.env.NEST_PASSPORT_SECRET
             }),
             refreshToken: await this.jwtService.signAsync(payload, {
-                expiresIn: '2h',
+                expiresIn: '3h',
                 secret: process.env.NEST_PASSPORT_REFRESH_SECRET
-            })
+            }),
+            expiresIn: new Date().setTime(new Date().getTime() + EXPIRE_TIME),
         };
     }
 
@@ -37,13 +40,14 @@ export class AuthService {
 
         return {
             accessToken: await this.jwtService.signAsync(payload, {
-                expiresIn: '1h',
+                expiresIn: '2h',
                 secret: process.env.NEST_PASSPORT_SECRET
             }),
             refreshToken: await this.jwtService.signAsync(payload, {
-                expiresIn: '2h',
+                expiresIn: '3h',
                 secret: process.env.NEST_PASSPORT_REFRESH_SECRET
-            })
+            }),
+            expiresIn: new Date().setTime(new Date().getTime() + EXPIRE_TIME),
         };
     }
 
