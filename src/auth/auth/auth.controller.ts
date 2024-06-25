@@ -14,11 +14,6 @@ export class AuthController {
         return { token: await this.authService.login(body.email, body.password) };
     }
 
-    @Get('teste')
-    teste() {
-        const hello = "hello"
-        return hello
-    }
     // exemplo
     // @Role('admin')
     // @UseGuards(JwtGuard, RoleGuard)
