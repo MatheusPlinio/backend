@@ -13,9 +13,9 @@ import { BcryptService } from 'src/util/bcrypt/bcrypt.service';
   imports: [
     PassportModule,
     JwtModule.register({
-      secret: 'abcd123456',
+      secret: process.env.NEST_PASSPORT_SECRET,
       signOptions: {
-        expiresIn: '60s',
+        expiresIn: '60m',
       },
     }),
     PrismaModule
