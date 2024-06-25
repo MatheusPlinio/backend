@@ -1,40 +1,89 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt'
+import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'src/prisma/prisma/prisma.service';
+
 @Injectable()
 export class AuthService {
 
     constructor(
         private jwtService: JwtService,
-        private prisma: PrismaService) { }
+        private prisma: PrismaService
+    ) { }
 
     async login(email: string, password: string) {
-        const account = await this.validateCredentials(email, password)
+        const account = await this.validateCredentials(email, password);
 
+        const payload = this.createPayload(account);
+
+        return {
+            accessToken: await this.jwtService.signAsync(payload, {
+                expiresIn: '1h',
+                secret: process.env.NEST_PASSPORT_SECRET
+            }),
+            refreshToken: await this.jwtService.signAsync(payload, {
+                expiresIn: '2h',
+                secret: process.env.NEST_PASSPORT_REFRESH_SECRET
+            })
+        };
+    }
+
+    async refreshToken(user: any) {
+        if (!user) {
+            throw new Error('Invalid user data');
+        }
+
+        const payload = this.createPayloadFromDecodedToken(user);
+
+        return {
+            accessToken: await this.jwtService.signAsync(payload, {
+                expiresIn: '1h',
+                secret: process.env.NEST_PASSPORT_SECRET
+            }),
+            refreshToken: await this.jwtService.signAsync(payload, {
+                expiresIn: '2h',
+                secret: process.env.NEST_PASSPORT_REFRESH_SECRET
+            })
+        };
+    }
+
+    private createPayload(account: any) {
         const roles = account.user.roles.map(role => role.role.name);
 
-        const address = account.user.address[0]?.address || ''; // Assuming only one address for simplicity
-        const cep = account.user.address[0]?.cep || '';
-        const locality_city = account.user.address[0]?.locality_city || '';
-        const state = account.user.address[0]?.state || '';
-        const celphone = account.user.address[0]?.celphone || '';
+        const address = account.user.address[0] || {}; // Assuming only one address for simplicity
+        const { address: addressLine, cep, locality_city, state, country, celphone } = address;
 
-        const payload = {
+        return {
             email: account.email,
             username: account.user.name,
             role: roles,
             gender: account.user.gender,
-            address: address,
-            cep: cep,
-            locality_city: locality_city,
-            state: state,
-            celphone: celphone,
-        }
+            birthday: account.user.birthday,
+            cpf: account.user.cpf,
+            address: addressLine || '',
+            cep: cep || '',
+            locality_city: locality_city || '',
+            state: state || '',
+            country: country || '',
+            celphone: celphone || ''
+        };
+    }
 
-        const token = this.jwtService.sign(payload);
-
-        return token;
+    private createPayloadFromDecodedToken(decodedToken: any) {
+        return {
+            email: decodedToken.email,
+            username: decodedToken.username,
+            role: decodedToken.role,
+            gender: decodedToken.gender,
+            birthday: decodedToken.birthday,
+            cpf: decodedToken.cpf,
+            address: decodedToken.address,
+            cep: decodedToken.cep,
+            locality_city: decodedToken.locality_city,
+            state: decodedToken.state,
+            country: decodedToken.country,
+            celphone: decodedToken.celphone
+        };
     }
 
     async validateCredentials(email: string, password: string) {
@@ -51,15 +100,14 @@ export class AuthService {
                     }
                 }
             }
-        })
+        });
 
-        const account = accounts.find(u => u.email === email && bcrypt.compareSync(password, u.password))
+        const account = accounts.find(u => u.email === email && bcrypt.compareSync(password, u.password));
 
         if (!account) {
-            throw new Error('User not found')
+            throw new Error('User not found');
         }
 
         return account;
     }
-
 }
