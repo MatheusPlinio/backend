@@ -22,6 +22,7 @@ export class RegisterService {
                     name: req.name,
                     cpf: req.cpf,
                     gender: req.gender,
+                    birthday: req.birthday,
                     account: {
                         create: {
                             email: req.account.email,
@@ -35,7 +36,8 @@ export class RegisterService {
                             celphone: req.address.celphone,
                             cep: req.address.cep,
                             locality_city: req.address.locality_city,
-                            state: req.address.state
+                            state: req.address.state,
+                            country: req.address.country
                         }
                     }
                 },

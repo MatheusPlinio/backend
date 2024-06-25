@@ -12,6 +12,7 @@ model Users {
   name       String
   gender     String
   cpf        String        @unique
+  birthday   DateTime
   created_at DateTime      @default(now())
   updated_at DateTime      @default(now())
   account    UserAccount[]
@@ -26,7 +27,7 @@ model UserAccount {
   safe_phrase String
   created_at  DateTime @default(now())
   updated_at  DateTime @default(now())
-  user        Users    @relation(fields: [id_user], references: [id])
+  user        Users    @relation(fields: [id_user], references: [id], onDelete: Cascade)
 }
 
 model Roles {
@@ -41,8 +42,8 @@ model UserRoles {
   id      String @id @default(uuid())
   user_id String
   role_id BigInt
-  user    Users  @relation(fields: [user_id], references: [id])
-  role    Roles  @relation(fields: [role_id], references: [id])
+  user    Users  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  role    Roles  @relation(fields: [role_id], references: [id], onDelete: Cascade)
 }
 
 model UserAddress {
@@ -51,7 +52,8 @@ model UserAddress {
   cep           String
   locality_city String
   state         String
+  country       String
   celphone      String
 
-  user Users @relation(fields: [user_id], references: [id])
+  user Users @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
